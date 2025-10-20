@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { FridgeMap } from '@/components/FridgeMap'
 import { FridgeCard } from '@/components/FridgeCard'
+import { ExternalPlaceCard } from '@/components/ExternalPlaceCard'
+import { AboutSection } from '@/components/AboutSection'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FridgeWithStatus } from '@/lib/types'
+import { FridgeWithStatus, ExternalPlaceWithSource } from '@/lib/types'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
@@ -70,8 +72,28 @@ async function getFridges(): Promise<FridgeWithStatus[]> {
   })
 }
 
+async function getExternalPlaces(): Promise<ExternalPlaceWithSource[]> {
+  const supabase = await createClient()
+  
+  const { data } = await supabase
+    .from('external_place')
+    .select('*, source:external_source(*)')
+    .eq('ignored', false)
+    .not('lat', 'is', null)
+    .not('lng', 'is', null)
+  
+  return (data || []) as ExternalPlaceWithSource[]
+}
+
 export default async function HomePage() {
   const fridges = await getFridges()
+  const externalPlaces = await getExternalPlaces()
+  
+  // Filter out external places that are already linked to fridges
+  const linkedIds = new Set(
+    fridges.map(f => f.external_place_id).filter(Boolean)
+  )
+  const unlinkedPlaces = externalPlaces.filter(p => !linkedIds.has(p.id))
 
   return (
     <main className="min-h-screen bg-background">
@@ -124,6 +146,9 @@ export default async function HomePage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* About Section */}
+        <AboutSection />
+
         <Tabs defaultValue="map" className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="map">Map View</TabsTrigger>
@@ -141,7 +166,7 @@ export default async function HomePage() {
           </TabsContent>
 
           <TabsContent value="list" className="space-y-4">
-            {fridges.length === 0 ? (
+            {fridges.length === 0 && unlinkedPlaces.length === 0 ? (
               <div className="text-center py-16 bg-card rounded-lg border">
                 <div className="flex justify-center mb-6">
                   <Image
@@ -157,8 +182,14 @@ export default async function HomePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Verified fridges */}
                 {fridges.map((fridge) => (
                   <FridgeCard key={fridge.id} fridge={fridge} />
+                ))}
+                
+                {/* Unverified external places */}
+                {unlinkedPlaces.map((place) => (
+                  <ExternalPlaceCard key={place.id} place={place} />
                 ))}
               </div>
             )}
