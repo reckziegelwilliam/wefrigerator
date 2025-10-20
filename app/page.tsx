@@ -1,103 +1,193 @@
-import Image from "next/image";
+import { createClient } from '@/lib/supabase/server'
+import { FridgeMap } from '@/components/FridgeMap'
+import { FridgeCard } from '@/components/FridgeCard'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { FridgeWithStatus } from '@/lib/types'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
+import Image from 'next/image'
 
-export default function Home() {
+async function getFridges(): Promise<FridgeWithStatus[]> {
+  const supabase = await createClient()
+
+  // Get fridges with their latest status and inventory
+  const { data: fridges, error } = await supabase
+    .from('fridge')
+    .select(`
+      *,
+      fridge_status (
+        id,
+        fridge_id,
+        status,
+        note,
+        photo_path,
+        created_by,
+        created_at
+      ),
+      fridge_inventory (*)
+    `)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching fridges:', error)
+    return []
+  }
+
+  // Transform data to include latest status and count open requests
+  const fridgesWithStatus: FridgeWithStatus[] = await Promise.all(
+    (fridges || []).map(async (fridge) => {
+      // Get latest status
+      const latestStatus = fridge.fridge_status?.[0] || null
+
+      // Get inventory
+      const inventory = Array.isArray(fridge.fridge_inventory)
+        ? fridge.fridge_inventory[0]
+        : fridge.fridge_inventory
+
+      // Count open requests
+      const { count } = await supabase
+        .from('item_request')
+        .select('*', { count: 'exact', head: true })
+        .eq('fridge_id', fridge.id)
+        .eq('status', 'open')
+
+      return {
+        ...fridge,
+        latest_status: latestStatus,
+        inventory,
+        open_requests_count: count || 0,
+      }
+    })
+  )
+
+  // Sort by latest status time
+  return fridgesWithStatus.sort((a, b) => {
+    const aTime = a.latest_status?.created_at || a.created_at
+    const bTime = b.latest_status?.created_at || b.created_at
+    return new Date(bTime).getTime() - new Date(aTime).getTime()
+  })
+}
+
+export default async function HomePage() {
+  const fridges = await getFridges()
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="min-h-screen bg-background">
+      {/* Hero Header */}
+      <header className="relative bg-secondary/30 border-b overflow-hidden">
+        {/* Background Hero Image */}
+        <div className="absolute inset-0 opacity-40">
+          <Image
+            src="/hero-1600x900.svg"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        
+        {/* Content */}
+        <div className="relative container mx-auto px-4 py-8 md:py-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-left">
+              {/* Wordmark Logo */}
+              <div className="mb-4">
+                <Image
+                  src="/wordmark-lockup.svg"
+                  alt="wefrigerator"
+                  width={280}
+                  height={60}
+                  priority
+                  className="mx-auto md:mx-0"
+                />
+              </div>
+              <p className="text-foreground/80 text-lg max-w-xl">
+                Find and support community fridges in your area
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/volunteer/routes">
+                <Button variant="outline" size="lg">Volunteer</Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button size="lg">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Post Update
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="map" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="map">Map View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="map" className="space-y-6">
+            <FridgeMap fridges={fridges} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {fridges.slice(0, 6).map((fridge) => (
+                <FridgeCard key={fridge.id} fridge={fridge} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="list" className="space-y-4">
+            {fridges.length === 0 ? (
+              <div className="text-center py-16 bg-card rounded-lg border">
+                <div className="flex justify-center mb-6">
+                  <Image
+                    src="/empty-state-800x600.svg"
+                    alt="No fridges found"
+                    width={400}
+                    height={300}
+                    className="opacity-60"
+                  />
+                </div>
+                <p className="text-muted-foreground text-lg">No fridges found in your area</p>
+                <p className="text-muted-foreground/70 text-sm mt-2">Check back soon or help us add one!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {fridges.map((fridge) => (
+                  <FridgeCard key={fridge.id} fridge={fridge} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Legend */}
+        <div className="mt-8 p-6 bg-card rounded-lg border">
+          <h3 className="font-semibold mb-4 text-foreground">Status Guide</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#3AD29F' }} />
+              <span className="text-sm text-foreground">Open</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#2EA7F2' }} />
+              <span className="text-sm text-foreground">Stocked</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#FFB020' }} />
+              <span className="text-sm text-foreground">Needs Items</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-muted rounded-full" />
+              <span className="text-sm text-foreground">Closed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
 }
