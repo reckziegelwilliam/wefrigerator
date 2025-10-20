@@ -1,0 +1,21 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "supabase",
+    "EXIF",
+    "Exif",
+    "dropoff",
+    "piexifjs",
+    "shadcn",
+    "lucide"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".next",
+    "build",
+    "dist",
+    "*.min.js"
+  ]
+}
+
