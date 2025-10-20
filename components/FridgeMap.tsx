@@ -1,10 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { FridgeWithStatus } from '@/lib/types'
+import { useEffect, useRef, useState } from 'react'
+import { FridgeWithStatus, ExternalPlaceWithSource } from '@/lib/types'
+import { createClient } from '@supabase/supabase-js'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface FridgeMapProps {
   fridges: FridgeWithStatus[]
+  showImportsToggle?: boolean
 }
 
 // Status color mapping - Wefrigerator Brand Colors
@@ -15,9 +19,51 @@ const statusColors = {
   closed: '#0A1B2A',   // Deep Navy (with opacity)
 }
 
-export function FridgeMap({ fridges }: FridgeMapProps) {
+// Source colors for imported places
+const sourceColors = {
+  osm_overpass: '#3B82F6', // blue
+  lac_charitable_food: '#10B981', // green
+  freedge: '#A855F7', // purple
+}
+
+export function FridgeMap({ fridges, showImportsToggle = false }: FridgeMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
+  const [showImports, setShowImports] = useState(false)
+  const [importedPlaces, setImportedPlaces] = useState<ExternalPlaceWithSource[]>([])
+
+  // Fetch imported places when toggle is enabled
+  useEffect(() => {
+    if (!showImportsToggle || !showImports) return
+
+    const fetchImports = async () => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+      if (!supabaseUrl || !supabaseAnonKey) return
+
+      const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+      // Get external places not linked to any fridge
+      const { data } = await supabase
+        .from('external_place')
+        .select('*, source:external_source(*)')
+        .eq('ignored', false)
+        .not('lat', 'is', null)
+        .not('lng', 'is', null)
+
+      if (data) {
+        // Filter out places that are already linked to fridges
+        const linkedIds = new Set(
+          fridges.map((f) => f.external_place_id).filter(Boolean)
+        )
+        const unlinked = data.filter((p) => !linkedIds.has(p.id))
+        setImportedPlaces(unlinked as ExternalPlaceWithSource[])
+      }
+    }
+
+    fetchImports()
+  }, [showImports, showImportsToggle, fridges])
 
   useEffect(() => {
     // Dynamically import Leaflet to avoid SSR issues
@@ -68,12 +114,12 @@ export function FridgeMap({ fridges }: FridgeMapProps) {
         maxZoom: 19,
       }).addTo(map)
 
-      // Add markers for each fridge
+      // Add markers for verified fridges
       fridges.forEach((fridge) => {
         const status = fridge.latest_status?.status || 'open'
         const color = statusColors[status as keyof typeof statusColors]
 
-        // Create custom colored marker
+        // Create custom colored marker (solid)
         const icon = L.divIcon({
           className: 'custom-marker',
           html: `
@@ -135,6 +181,94 @@ export function FridgeMap({ fridges }: FridgeMapProps) {
         marker.bindPopup(popupContent)
       })
 
+      // Add markers for imported places (if enabled)
+      if (showImports && importedPlaces.length > 0) {
+        importedPlaces.forEach((place) => {
+          if (!place.lat || !place.lng) return
+
+          const sourceName = place.source?.name || 'unknown'
+          const color = sourceColors[sourceName as keyof typeof sourceColors] || '#6B7280'
+
+          // Create outline marker for unverified imports
+          const icon = L.divIcon({
+            className: 'custom-marker-import',
+            html: `
+              <div style="
+                width: 28px;
+                height: 28px;
+                background-color: white;
+                border: 3px solid ${color};
+                border-radius: 50%;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.85;
+              ">
+                <div style="
+                  width: 8px;
+                  height: 8px;
+                  background-color: ${color};
+                  border-radius: 50%;
+                "></div>
+              </div>
+            `,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          })
+
+          const marker = L.marker([place.lat, place.lng], { icon }).addTo(map)
+
+          const sourceBadge =
+            sourceName === 'osm_overpass'
+              ? 'OSM'
+              : sourceName === 'lac_charitable_food'
+                ? 'LA County'
+                : sourceName === 'freedge'
+                  ? 'Freedge'
+                  : 'External'
+
+          const popupContent = `
+            <div style="min-width: 200px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <h3 style="font-weight: 600; margin: 0;">${place.name || 'Imported Location'}</h3>
+                <span style="
+                  background-color: ${color};
+                  color: white;
+                  padding: 2px 8px;
+                  border-radius: 4px;
+                  font-size: 11px;
+                  font-weight: 500;
+                ">${sourceBadge}</span>
+              </div>
+              <p style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                ${place.address || 'No address provided'}
+              </p>
+              <p style="font-size: 12px; color: #999; margin-bottom: 8px;">
+                ⚠️ Unverified location from external source
+              </p>
+              <a 
+                href="/admin/imports"
+                style="
+                  display: inline-block;
+                  padding: 6px 12px;
+                  background-color: ${color};
+                  color: white;
+                  text-decoration: none;
+                  border-radius: 6px;
+                  font-size: 14px;
+                  margin-top: 4px;
+                "
+              >
+                Review in Admin
+              </a>
+            </div>
+          `
+
+          marker.bindPopup(popupContent)
+        })
+      }
+
       // Fit bounds if we have fridges
       if (bounds.length > 0) {
         map.fitBounds(bounds, { padding: [50, 50] })
@@ -149,8 +283,32 @@ export function FridgeMap({ fridges }: FridgeMapProps) {
         mapInstanceRef.current = null
       }
     }
-  }, [fridges])
+  }, [fridges, showImports, importedPlaces])
 
-  return <div ref={mapRef} className="w-full h-[500px] rounded-lg overflow-hidden border" />
+  return (
+    <div className="space-y-4">
+      {showImportsToggle && (
+        <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg">
+          <Checkbox
+            id="show-imports"
+            checked={showImports}
+            onCheckedChange={(checked) => setShowImports(checked === true)}
+          />
+          <Label
+            htmlFor="show-imports"
+            className="text-sm font-medium leading-none cursor-pointer"
+          >
+            Show unverified imports from external sources
+          </Label>
+          {showImports && importedPlaces.length > 0 && (
+            <span className="text-sm text-muted-foreground ml-2">
+              ({importedPlaces.length} locations)
+            </span>
+          )}
+        </div>
+      )}
+      <div ref={mapRef} className="w-full h-[500px] rounded-lg overflow-hidden border" />
+    </div>
+  )
 }
 

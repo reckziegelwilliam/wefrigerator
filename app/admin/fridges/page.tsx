@@ -68,6 +68,17 @@ export default async function AdminFridgesPage() {
             <p className="text-muted-foreground mt-2">
               View and manage all community fridges
             </p>
+            <div className="flex gap-2 mt-4">
+              <Link href="/admin/imports">
+                <Button variant="outline" size="sm">Import Management</Button>
+              </Link>
+              <Link href="/admin/routes">
+                <Button variant="outline" size="sm">Manage Routes</Button>
+              </Link>
+              <Link href="/admin/reports">
+                <Button variant="outline" size="sm">Reports</Button>
+              </Link>
+            </div>
           </div>
           <Link href="/admin/fridges/new">
             <Button>

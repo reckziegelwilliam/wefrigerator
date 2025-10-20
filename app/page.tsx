@@ -131,7 +131,7 @@ export default async function HomePage() {
           </TabsList>
 
           <TabsContent value="map" className="space-y-6">
-            <FridgeMap fridges={fridges} />
+            <FridgeMap fridges={fridges} showImportsToggle={true} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {fridges.slice(0, 6).map((fridge) => (
@@ -188,6 +188,23 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t mt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+            <p>© 2025 wefrigerator. Supporting community food access.</p>
+            <div className="flex gap-6">
+              <Link href="/data-sources" className="hover:text-foreground transition-colors">
+                Data Sources & Licenses
+              </Link>
+              <Link href="/profile" className="hover:text-foreground transition-colors">
+                Profile
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
