@@ -1,0 +1,59 @@
+name: Ingest External Data
+
+on:
+  # Run daily at 2 AM Pacific Time (10 AM UTC)
+  schedule:
+    - cron: '0 10 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ingest OSM Overpass Data
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.INGEST_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -f \
+            https://comm-fridge.vercel.app/api/ingest/overpass
+        continue-on-error: true
+        id: osm
+      
+      - name: Wait between requests
+        run: sleep 10
+      
+      - name: Ingest LA County ArcGIS Data
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.INGEST_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -f \
+            https://comm-fridge.vercel.app/api/ingest/arcgis-la
+        continue-on-error: true
+        id: arcgis
+      
+      - name: Wait between requests
+        run: sleep 10
+      
+      - name: Ingest Freedge Data
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.INGEST_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -f \
+            https://comm-fridge.vercel.app/api/ingest/freedge
+        continue-on-error: true
+        id: freedge
+      
+      - name: Report Results
+        if: always()
+        run: |
+          echo "Ingestion job completed"
+          echo "OSM: ${{ steps.osm.outcome }}"
+          echo "ArcGIS: ${{ steps.arcgis.outcome }}"
+          echo "Freedge: ${{ steps.freedge.outcome }}"
+
