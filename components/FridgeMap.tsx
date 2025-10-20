@@ -5,6 +5,7 @@ import { FridgeWithStatus, ExternalPlaceWithSource } from '@/lib/types'
 import { createClient } from '@supabase/supabase-js'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { getSiteTypeLabel, getAccessModelLabel } from '@/lib/utils/external-data'
 
 interface FridgeMapProps {
   fridges: FridgeWithStatus[]
@@ -228,6 +229,10 @@ export function FridgeMap({ fridges, showImportsToggle = false }: FridgeMapProps
                   ? 'Freedge'
                   : 'External'
 
+          // Extract tags from raw data
+          const siteType = getSiteTypeLabel(place.raw)
+          const accessModel = getAccessModelLabel(place.raw)
+
           const popupContent = `
             <div style="min-width: 200px;">
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -241,6 +246,34 @@ export function FridgeMap({ fridges, showImportsToggle = false }: FridgeMapProps
                   font-weight: 500;
                 ">${sourceBadge}</span>
               </div>
+              
+              ${siteType || accessModel ? `
+                <div style="display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;">
+                  ${siteType ? `
+                    <span style="
+                      background-color: #f3f4f6;
+                      color: #374151;
+                      padding: 3px 8px;
+                      border-radius: 4px;
+                      font-size: 11px;
+                      font-weight: 500;
+                      border: 1px solid #d1d5db;
+                    ">🏢 ${siteType}</span>
+                  ` : ''}
+                  ${accessModel ? `
+                    <span style="
+                      background-color: #f3f4f6;
+                      color: #374151;
+                      padding: 3px 8px;
+                      border-radius: 4px;
+                      font-size: 11px;
+                      font-weight: 500;
+                      border: 1px solid #d1d5db;
+                    ">📍 ${accessModel}</span>
+                  ` : ''}
+                </div>
+              ` : ''}
+              
               <p style="font-size: 14px; color: #666; margin-bottom: 8px;">
                 ${place.address || 'No address provided'}
               </p>
