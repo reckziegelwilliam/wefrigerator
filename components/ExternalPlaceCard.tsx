@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { MapPin, AlertCircle } from 'lucide-react'
 import { ExternalPlaceWithSource } from '@/lib/types'
+import { ExternalSourceInfo } from '@/components/ExternalSourceInfo'
 
 interface ExternalPlaceCardProps {
   place: ExternalPlaceWithSource
@@ -36,17 +37,22 @@ export function ExternalPlaceCard({ place }: ExternalPlaceCardProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs">
-            Source: {sourceName}
-          </Badge>
-        </div>
+      <CardContent className="space-y-4">
+        {/* External Source Information */}
+        <ExternalSourceInfo externalPlace={place} variant="card" />
 
-        <p className="text-sm text-muted-foreground">
-          This location has been imported from {sourceName} but hasn&apos;t been verified yet. 
-          If you know about this fridge, please contact an admin to verify it.
-        </p>
+        {/* Source Attribution */}
+        <div className="pt-2 border-t">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="secondary" className="text-xs">
+              Source: {sourceName}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This location has been imported from {sourceName} but hasn&apos;t been verified yet. 
+            If you know about this fridge, please contact an admin to verify it.
+          </p>
+        </div>
       </CardContent>
     </Card>
   )

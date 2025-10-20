@@ -4,10 +4,13 @@ import { StatusTimeline } from '@/components/StatusTimeline'
 import { InventoryChips } from '@/components/InventoryChips'
 import { ItemRequests } from '@/components/ItemRequests'
 import { PickupWindows } from '@/components/PickupWindows'
+import { ExternalSourceInfo } from '@/components/ExternalSourceInfo'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Plus, Package } from 'lucide-react'
+import { ArrowLeft, MapPin, Plus, Package, Database } from 'lucide-react'
+import { ExternalPlaceWithSource } from '@/lib/types'
 
 interface FridgePageProps {
   params: Promise<{ id: string }>
@@ -17,10 +20,16 @@ export default async function FridgePage({ params }: FridgePageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  // Get fridge details
+  // Get fridge details with external place data
   const { data: fridge, error: fridgeError } = await supabase
     .from('fridge')
-    .select('*')
+    .select(`
+      *,
+      external_place:external_place_id (
+        *,
+        source:source_id (*)
+      )
+    `)
     .eq('id', id)
     .single()
 
@@ -61,6 +70,16 @@ export default async function FridgePage({ params }: FridgePageProps) {
   // Check if user is authenticated
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Type assertion for external_place
+  const externalPlace = fridge.external_place as ExternalPlaceWithSource | null
+  
+  // Source name mapping
+  const sourceNames: Record<string, string> = {
+    osm_overpass: 'OpenStreetMap',
+    lac_charitable_food: 'LA County',
+    freedge: 'Freedge',
+  }
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -75,9 +94,17 @@ export default async function FridgePage({ params }: FridgePageProps) {
           
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-foreground">
-                {fridge.name}
-              </h1>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-3xl font-bold text-foreground">
+                  {fridge.name}
+                </h1>
+                {externalPlace && externalPlace.source && (
+                  <Badge variant="outline" className="text-xs">
+                    <Database className="w-3 h-3 mr-1" />
+                    Imported from {sourceNames[externalPlace.source.name] || externalPlace.source.name}
+                  </Badge>
+                )}
+              </div>
               {fridge.address && (
                 <p className="text-muted-foreground mt-2 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
@@ -142,6 +169,21 @@ export default async function FridgePage({ params }: FridgePageProps) {
                 <InventoryChips inventory={inventory} showAll />
               </CardContent>
             </Card>
+
+            {/* External Source Information */}
+            {externalPlace && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Source Information</CardTitle>
+                  <CardDescription>
+                    Details from {externalPlace.source ? sourceNames[externalPlace.source.name] || externalPlace.source.name : 'external source'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ExternalSourceInfo externalPlace={externalPlace} variant="detail" />
+                </CardContent>
+              </Card>
+            )}
 
             {/* Item Requests */}
             <ItemRequests requests={requests || []} canFulfill={!!user} />
