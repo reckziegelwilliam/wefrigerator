@@ -4,6 +4,7 @@ import { useState, useRef, ChangeEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { validateImageFile, stripExif, resizeImage } from '@/lib/utils/image'
 import { Upload, X } from 'lucide-react'
+import Image from 'next/image'
 
 interface PhotoUploaderProps {
   onPhotoSelect: (file: File | null) => void
@@ -90,11 +91,13 @@ export function PhotoUploader({ onPhotoSelect }: PhotoUploaderProps) {
           </div>
         </label>
       ) : (
-        <div className="relative">
-          <img
+        <div className="relative h-48">
+          <Image
             src={preview}
             alt="Preview"
-            className="w-full h-48 object-cover rounded-lg"
+            fill
+            className="object-cover rounded-lg"
+            unoptimized
           />
           <Button
             type="button"

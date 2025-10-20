@@ -7,6 +7,7 @@ import { formatDate, formatRelative } from '@/lib/utils/date'
 import { Clock } from 'lucide-react'
 import { FridgeStatus } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
+import Image from 'next/image'
 
 interface StatusTimelineProps {
   statuses: FridgeStatus[]
@@ -53,12 +54,16 @@ export function StatusTimeline({ statuses }: StatusTimelineProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {photoUrl && !photoError[latestStatus.id] && (
-            <img
-              src={photoUrl}
-              alt="Current fridge status"
-              className="w-full h-64 object-cover rounded-lg"
-              onError={() => setPhotoError(prev => ({ ...prev, [latestStatus.id]: true }))}
-            />
+            <div className="relative w-full h-64">
+              <Image
+                src={photoUrl}
+                alt="Current fridge status"
+                fill
+                className="object-cover rounded-lg"
+                unoptimized
+                onError={() => setPhotoError(prev => ({ ...prev, [latestStatus.id]: true }))}
+              />
+            </div>
           )}
           {latestStatus.note && (
             <p className="text-foreground/80">{latestStatus.note}</p>
@@ -91,12 +96,16 @@ export function StatusTimeline({ statuses }: StatusTimelineProps) {
                         <p className="text-sm text-foreground/80">{status.note}</p>
                       )}
                       {statusPhotoUrl && !photoError[status.id] && (
-                        <img
-                          src={statusPhotoUrl}
-                          alt={`Status update from ${formatDate(status.created_at)}`}
-                          className="w-full h-32 object-cover rounded"
-                          onError={() => setPhotoError(prev => ({ ...prev, [status.id]: true }))}
-                        />
+                        <div className="relative w-full h-32">
+                          <Image
+                            src={statusPhotoUrl}
+                            alt={`Status update from ${formatDate(status.created_at)}`}
+                            fill
+                            className="object-cover rounded"
+                            unoptimized
+                            onError={() => setPhotoError(prev => ({ ...prev, [status.id]: true }))}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
