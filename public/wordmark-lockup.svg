@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 320" role="img" aria-label="wefrigerator wordmark">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2EA7F2"/>
+      <stop offset="1" stop-color="#3AD29F"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="272" height="272" rx="64" fill="url(#g)"/>
+  <rect x="80" y="64" width="160" height="192" rx="28" fill="#F9FBFC"/>
+  <rect x="80" y="64" width="78" height="192" rx="28" fill="#E9F6FF"/>
+  <rect x="156" y="96" width="10" height="40" rx="5" fill="#0A1B2A" opacity="0.25"/>
+  <rect x="156" y="180" width="10" height="40" rx="5" fill="#0A1B2A" opacity="0.25"/>
+  <path d="M160 170c-13-18-39-17-50-3-8 11-6 29 5 39 15 14 38 32 45 37 7-5 30-23 45-37 11-10 13-28 5-39-11-14-37-15-50 3z" fill="#FFB020"/>
+  <g transform="translate(336,208)" fill="#0A1B2A">
+    <path d="M0-16h32v12c6-9 17-15 32-15 27 0 46 19 46 50V0h-32v-28c0-16-9-26-23-26-14 0-23 10-23 26V0H0z"/>
+    <path d="M132-52h32V0h-32v-52zm0-40h32v28h-32v-28z"/>
+    <path d="M184-16h32v12c6-9 17-15 32-15 27 0 46 19 46 50V0h-32v-28c0-16-9-26-23-26-14 0-23 10-23 26V0h-32v-16z"/>
+    <path d="M328-74h32V0h-32v-74z"/>
+    <path d="M372-74h32v28c8-20 24-31 46-31 31 0 54 26 54 62 0 37-23 62-54 62-22 0-38-11-46-31V0h-32v-74zM472-15c0-19-12-32-29-32s-29 13-29 32 12 32 29 32 29-13 29-32z"/>
+    <path d="M548-78c11 0 20 9 20 20s-9 20-20 20-20-9-20-20 9-20 20-20z"/>
+    <path d="M520-16h32V0h-32v-16z"/>
+    <path d="M580-16h32v12c6-9 17-15 32-15 27 0 46 19 46 50V0h-32v-28c0-16-9-26-23-26-14 0-23 10-23 26V0h-32v-16z"/>
+    <path d="M724-16h32v12c6-9 17-15 32-15 27 0 46 19 46 50V0h-32v-28c0-16-9-26-23-26-14 0-23 10-23 26V0h-32v-16z"/>
+  </g>
+</svg>

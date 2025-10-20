@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1242 2688" role="img" aria-label="wefrigerator app screenshot mock">
+  <rect width="1242" height="2688" fill="#E9F6FF"/>
+  <rect x="81" y="120" width="1080" height="2448" rx="84" fill="#fff" stroke="#DDEAF3" stroke-width="4"/>
+  <rect x="201" y="260" width="840" height="96" rx="20" fill="#0A1B2A" opacity="0.85"/>
+  <rect x="161" y="400" width="940" height="720" rx="28" fill="#F4FAFE"/>
+  <g stroke="#D6EAF8" stroke-width="18" fill="none">
+    <path d="M181 520 H1081"/>
+    <path d="M181 680 H1081"/>
+    <path d="M181 840 H1081"/>
+  </g>
+  <g transform="translate(161,1200)">
+    <rect width="940" height="220" rx="24" fill="#fff" stroke="#EEF5FA"/>
+    <rect x="40" y="40" width="320" height="140" rx="20" fill="#E9F6FF"/>
+    <g transform="translate(400,40)" fill="#0A1B2A">
+      <rect width="360" height="24" rx="12"/>
+      <rect y="44" width="260" height="16" rx="8" opacity="0.5"/>
+      <rect y="70" width="200" height="16" rx="8" opacity="0.3"/>
+    </g>
+  </g>
+  <g transform="translate(161,1450)">
+    <rect width="940" height="220" rx="24" fill="#fff" stroke="#EEF5FA"/>
+  </g>
+  <g transform="translate(161,1700)">
+    <rect width="940" height="220" rx="24" fill="#fff" stroke="#EEF5FA"/>
+  </g>
+  <g transform="translate(161,2080)">
+    <rect width="580" height="42" rx="21" fill="#2EA7F2"/>
+    <rect y="60" width="440" height="28" rx="14" fill="#3AD29F"/>
+  </g>
+</svg>

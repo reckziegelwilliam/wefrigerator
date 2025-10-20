@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="wefrigerator hero illustration">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E9F6FF"/>
+      <stop offset="1" stop-color="#F9FBFC"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2EA7F2"/>
+      <stop offset="1" stop-color="#3AD29F"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g opacity="0.25" fill="#2EA7F2">
+    <rect x="80" y="520" width="200" height="140" rx="20"/>
+    <rect x="320" y="560" width="180" height="120" rx="18"/>
+    <rect x="540" y="500" width="220" height="160" rx="22"/>
+    <rect x="800" y="540" width="200" height="140" rx="20"/>
+    <rect x="1040" y="560" width="180" height="120" rx="18"/>
+    <rect x="1240" y="520" width="220" height="160" rx="22"/>
+  </g>
+  <rect x="0" y="720" width="1600" height="180" fill="#0A1B2A" opacity="0.06"/>
+  <g transform="translate(180,180)">
+    <rect width="440" height="540" rx="56" fill="url(#tile)"/>
+    <rect x="86" y="80" width="268" height="360" rx="40" fill="#F9FBFC"/>
+    <rect x="86" y="80" width="128" height="360" rx="40" fill="#E9F6FF"/>
+    <rect x="208" y="118" width="12" height="60" rx="6" fill="#0A1B2A" opacity="0.25"/>
+    <rect x="208" y="300" width="12" height="60" rx="6" fill="#0A1B2A" opacity="0.25"/>
+    <path d="M220 300c-28-40-84-38-108-7-18 24-14 60 10 82 34 30 82 68 98 78 16-10 64-48 98-78 24-22 28-58 10-82-24-31-80-33-108 7z" fill="#FFB020"/>
+  </g>
+  <g transform="translate(760,200)">
+    <rect x="0" y="0" width="640" height="420" rx="28" fill="#fff" stroke="#E6EEF5"/>
+    <g transform="translate(40,40)">
+      <rect width="260" height="140" rx="20" fill="#E9F6FF"/>
+      <rect x="24" y="24" width="212" height="24" rx="12" fill="#2EA7F2" opacity="0.8"/>
+      <rect x="24" y="60" width="140" height="16" rx="8" fill="#0A1B2A" opacity="0.25"/>
+      <rect x="24" y="86" width="110" height="16" rx="8" fill="#0A1B2A" opacity="0.18"/>
+    </g>
+    <g transform="translate(340,40)">
+      <rect width="260" height="140" rx="20" fill="#E9FFEF"/>
+      <rect x="24" y="24" width="212" height="24" rx="12" fill="#3AD29F" opacity="0.8"/>
+      <rect x="24" y="60" width="140" height="16" rx="8" fill="#0A1B2A" opacity="0.25"/>
+      <rect x="24" y="86" width="110" height="16" rx="8" fill="#0A1B2A" opacity="0.18"/>
+    </g>
+    <g transform="translate(40,220)">
+      <rect width="260" height="140" rx="20" fill="#FFF6E6"/>
+      <rect x="24" y="24" width="212" height="24" rx="12" fill="#FFB020" opacity="0.9"/>
+      <rect x="24" y="60" width="140" height="16" rx="8" fill="#0A1B2A" opacity="0.25"/>
+      <rect x="24" y="86" width="110" height="16" rx="8" fill="#0A1B2A" opacity="0.18"/>
+    </g>
+    <g transform="translate(340,220)">
+      <rect width="260" height="140" rx="20" fill="#F1F5F9"/>
+      <rect x="24" y="24" width="212" height="24" rx="12" fill="#0A1B2A" opacity="0.7"/>
+      <rect x="24" y="60" width="140" height="16" rx="8" fill="#0A1B2A" opacity="0.25"/>
+      <rect x="24" y="86" width="110" height="16" rx="8" fill="#0A1B2A" opacity="0.18"/>
+    </g>
+  </g>
+  <g transform="translate(180,760)" fill="#0A1B2A">
+    <rect x="0" y="0" width="420" height="28" rx="14"/>
+    <rect x="0" y="44" width="260" height="18" rx="9" opacity="0.4"/>
+  </g>
+</svg>
