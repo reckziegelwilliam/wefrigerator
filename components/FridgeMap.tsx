@@ -102,7 +102,7 @@ export function FridgeMap({ fridges, showImportsToggle = false }: FridgeMapProps
             (acc, coord) => [acc[0] + coord[0] / bounds.length, acc[1] + coord[1] / bounds.length],
             [0, 0]
           )
-        : [37.7749, -122.4194] // Default to SF
+        : [34.0522, -118.2437] // Default to Los Angeles
 
       // Create map
       const map = L.map(mapRef.current).setView(center as [number, number], 12)
